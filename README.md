@@ -1,5 +1,7 @@
 # Carefit+ — Plataforma de Bem-estar Gamificada
 
+> **Aviso:** este repositório representa uma entrega parcial do projeto. A aplicação ainda está em desenvolvimento — os dados são estáticos e algumas funcionalidades não estão totalmente implementadas.
+
 Carefit+ é uma aplicação web de bem-estar que transforma hábitos saudáveis em missões diárias gamificadas. O usuário acumula pontos de vitalidade (XP) ao completar atividades físicas e mentais, sobe de nível, desbloqueia conquistas e resgata recompensas reais na loja integrada.
 
 ## Funcionalidades
