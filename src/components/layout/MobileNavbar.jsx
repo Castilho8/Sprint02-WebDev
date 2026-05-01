@@ -53,6 +53,13 @@ export default function MobileNavbar() {
           ))}
         </nav>
       )}
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[-1]"
+          onClick={() => setOpen(false)}
+        />
+      )}
     </header>
   )
 }
