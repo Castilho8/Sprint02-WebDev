@@ -11,7 +11,7 @@ export default function Layout({ children }) {
           {children}
         </main>
         <footer className="flex items-center justify-between text-xs text-gray-400 py-4 px-6 border-t border-gray-200">
-          <p>© 2024 CareFit+ Wellness. Todos os direitos reservados.</p>
+          <p>© 2026 CareFit+ Wellness. Todos os direitos reservados.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-[#2e7d32]">Política de Privacidade</a>
             <a href="#" className="hover:text-[#2e7d32]">Conformidade LGPD</a>
