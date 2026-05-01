@@ -1,16 +1,33 @@
-# React + Vite
+# Carefit+ — Plataforma de Bem-estar Gamificada
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Carefit+ é uma aplicação web de bem-estar que transforma hábitos saudáveis em missões diárias gamificadas. O usuário acumula pontos de vitalidade (XP) ao completar atividades físicas e mentais, sobe de nível, desbloqueia conquistas e resgata recompensas reais na loja integrada.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Dashboard** — visão geral do dia: pontos de vitalidade, progresso físico (passos, sono) e mental (meditação, foco), missões em andamento e streak de dias consecutivos.
+- **Missões** — missões diárias divididas em categorias física e mental, com barra de progresso individual, sistema de XP e calendário semanal de dias perfeitos.
+- **Loja** — resgate de recompensas com os pontos acumulados. Itens digitais, físicos, de saúde e parceiros. Fluxo completo com modal de confirmação.
+- **Perfil** — dados pessoais editáveis, métricas de saúde, conquistas desbloqueáveis, avatar personalizável e controle de privacidade em conformidade com a LGPD.
 
-## React Compiler
+## Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- React Router DOM
+- Tailwind CSS
+- Bootstrap Icons
+- Vite
 
-## Expanding the ESLint configuration
+## Como rodar
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Integrantes
+
+| Nome | RM |
+|------|----|
+| Bruno Santos Castilho | RM 566799 |
+| Murilo Jeronimo Ferreira Nunes | RM 560641 |
+| Vinicius Kozonoe Guaglini | RM 567264 |
