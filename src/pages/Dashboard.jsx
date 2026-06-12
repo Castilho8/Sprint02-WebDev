@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
+import { useTheme } from '../context/ThemeContext'
 
 const MONITORING_QUESTIONS = [
   { id: 'bemestar', label: 'Como está seu nível de bem-estar geral?', shortLabel: 'Bem-estar', inverted: false, lowLabel: 'Muito baixo', highLabel: 'Muito alto' },
@@ -23,10 +24,10 @@ function calcWellnessScore(answers) {
 }
 
 function getWellnessRisk(score) {
-  if (score >= 81) return { label: 'Excelente', color: '#2e7d32', bg: '#e8f5e9', icon: 'bi-emoji-laughing-fill', msg: 'Parabéns! Seus indicadores estão ótimos. Continue assim!' }
-  if (score >= 61) return { label: 'Bom', color: '#388e3c', bg: '#f1f8e9', icon: 'bi-emoji-smile-fill', msg: 'Seus indicadores estão bons. Fique atento a pequenas melhorias na rotina.' }
-  if (score >= 41) return { label: 'Atenção', color: '#f57c00', bg: '#fff3e0', icon: 'bi-exclamation-triangle-fill', msg: 'Atenção: alguns indicadores precisam de cuidado. Considere ajustes na sua rotina.' }
-  return { label: 'Risco', color: '#c62828', bg: '#ffebee', icon: 'bi-exclamation-circle-fill', msg: 'Identificamos possíveis riscos à sua saúde. O RH será notificado para oferecer suporte adequado.' }
+  if (score >= 81) return { label: 'Excelente', color: '#2e7d32', bg: '#e8f5e9', darkBg: '#0d2211', icon: 'bi-emoji-laughing-fill', msg: 'Parabéns! Seus indicadores estão ótimos. Continue assim!' }
+  if (score >= 61) return { label: 'Bom', color: '#388e3c', bg: '#f1f8e9', darkBg: '#0d2211', icon: 'bi-emoji-smile-fill', msg: 'Seus indicadores estão bons. Fique atento a pequenas melhorias na rotina.' }
+  if (score >= 41) return { label: 'Atenção', color: '#f57c00', bg: '#fff3e0', darkBg: '#2a1f0f', icon: 'bi-exclamation-triangle-fill', msg: 'Atenção: alguns indicadores precisam de cuidado. Considere ajustes na sua rotina.' }
+  return { label: 'Risco', color: '#c62828', bg: '#ffebee', darkBg: '#2a1010', icon: 'bi-exclamation-circle-fill', msg: 'Identificamos possíveis riscos à sua saúde. O RH será notificado para oferecer suporte adequado.' }
 }
 
 function HydrationBar({ filled }) {
@@ -76,6 +77,7 @@ export default function Dashboard() {
     }
   }
 
+  const { dark } = useTheme()
   const q = MONITORING_QUESTIONS[currentQ]
   const riskInfo = wellnessScore !== null ? getWellnessRisk(wellnessScore) : null
 
@@ -137,7 +139,7 @@ export default function Dashboard() {
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Planta Física */}
-        <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: '#eef2ee' }}>
+        <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: dark ? '#162032' : '#eef2ee' }}>
           <div className="px-6 pt-6 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <i className="bi bi-tree-fill text-[#2e7d32]" />
@@ -163,7 +165,7 @@ export default function Dashboard() {
         </div>
 
         {/* Luz Interior */}
-        <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: 'radial-gradient(circle at 60% 40%, #dce8f5, #eaf0f8)' }}>
+        <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: dark ? 'radial-gradient(circle at 60% 40%, #162032, #1e293b)' : 'radial-gradient(circle at 60% 40%, #dce8f5, #eaf0f8)' }}>
           <div className="px-6 pt-6 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <i className="bi bi-stars text-blue-500" />
@@ -198,7 +200,7 @@ export default function Dashboard() {
       {phase === 'idle' && (
         <div
           className="rounded-2xl border p-5 shadow-sm"
-          style={{ background: 'linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)', borderColor: '#ce93d8' }}
+          style={{ background: dark ? 'linear-gradient(135deg, #1e0a2e 0%, #2a1045 100%)' : 'linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)', borderColor: dark ? '#6a1b9a' : '#ce93d8' }}
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
@@ -299,7 +301,7 @@ export default function Dashboard() {
       {phase === 'result' && riskInfo && (
         <div
           className="rounded-2xl border p-6 shadow-sm"
-          style={{ background: riskInfo.bg, borderColor: riskInfo.color + '60' }}
+          style={{ background: dark ? riskInfo.darkBg : riskInfo.bg, borderColor: riskInfo.color + '60' }}
         >
           <div className="text-center mb-5">
             <i className={`bi ${riskInfo.icon} text-5xl`} style={{ color: riskInfo.color }} />

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
 import { useAvatar } from '../context/AvatarContext'
+import { useTheme } from '../context/ThemeContext'
 
 const TABS = [
   { id: 'dados', label: 'Dados Pessoais' },
@@ -314,6 +315,7 @@ export default function Profile() {
   const [deleteInput, setDeleteInput] = useState('')
   const [deleteError, setDeleteError] = useState(false)
   const { avatar, updateAvatar } = useAvatar()
+  const { dark } = useTheme()
   const fileInputRef = useRef(null)
 
   function handleChange(e) {
@@ -341,7 +343,7 @@ export default function Profile() {
       {/* Cabeçalho do perfil */}
       <div
         className="rounded-2xl p-5 mb-5 border border-[#e0ede0]"
-        style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)' }}
+        style={{ background: dark ? 'linear-gradient(135deg, #0d2211 0%, #1a2e1a 100%)' : 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)' }}
       >
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-5">
           <div className="relative">
@@ -387,12 +389,12 @@ export default function Profile() {
         {/* Estatísticas rápidas */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { value: '840', label: 'Pontos atuais', color: 'text-[#2e7d32]', bg: '#e8f5e9' },
-            { value: '47', label: 'Dias perfeitos', color: 'text-[#1b1b1b]', bg: 'white' },
-            { value: '128', label: 'Missões concluídas', color: 'text-blue-600', bg: '#e3f2fd' },
-            { value: '8', label: 'Conquistas', color: 'text-orange-600', bg: '#fff3e0' },
+            { value: '840', label: 'Pontos atuais', color: 'text-[#2e7d32]', bg: '#e8f5e9', darkBg: 'rgba(46,125,50,.18)' },
+            { value: '47', label: 'Dias perfeitos', color: 'text-[#1b1b1b]', bg: 'white', darkBg: '#1e293b' },
+            { value: '128', label: 'Missões concluídas', color: 'text-blue-600', bg: '#e3f2fd', darkBg: 'rgba(30,136,229,.12)' },
+            { value: '8', label: 'Conquistas', color: 'text-orange-600', bg: '#fff3e0', darkBg: 'rgba(230,81,0,.12)' },
           ].map(s => (
-            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.bg }}>
+            <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: dark ? s.darkBg : s.bg }}>
               <div className={`text-2xl font-extrabold ${s.color}`}>{s.value}</div>
               <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
             </div>

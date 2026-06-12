@@ -12,7 +12,7 @@ export default function MobileNavbar() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="lg:hidden bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <div
@@ -21,18 +21,18 @@ export default function MobileNavbar() {
           >
             <i className="bi bi-leaf-fill text-white text-sm" />
           </div>
-          <span className="font-extrabold text-[#1b1b1b] text-lg">CareFit+</span>
+          <span className="font-extrabold text-[#1b1b1b] dark:text-slate-100 text-lg">CareFit+</span>
         </div>
         <button
           onClick={() => setOpen(o => !o)}
-          className="text-[#2e7d32] text-2xl border-0 bg-transparent focus:outline-none"
+          className="text-[#2e7d32] dark:text-green-400 text-2xl border-0 bg-transparent focus:outline-none"
         >
           <i className={`bi ${open ? 'bi-x-lg' : 'bi-list'}`} />
         </button>
       </div>
 
       {open && (
-        <nav className="flex flex-col gap-1 px-3 pb-3 border-t border-gray-100">
+        <nav className="flex flex-col gap-1 px-3 pb-3 border-t border-gray-100 dark:border-slate-700">
           {navLinks.map(({ to, label, icon }) => (
             <NavLink
               key={to}
@@ -42,8 +42,8 @@ export default function MobileNavbar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors ${
                   isActive
-                    ? 'bg-[#e8f5e9] text-[#2e7d32]'
-                    : 'text-[#495057] hover:bg-[#f1f8f1] hover:text-[#2e7d32]'
+                    ? 'bg-[#e8f5e9] text-[#2e7d32] dark:bg-green-900/30 dark:text-green-400'
+                    : 'text-[#495057] hover:bg-[#f1f8f1] hover:text-[#2e7d32] dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-green-400'
                 }`
               }
             >
