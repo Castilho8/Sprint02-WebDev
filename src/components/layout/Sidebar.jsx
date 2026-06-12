@@ -16,7 +16,7 @@ export default function Sidebar() {
       className="hidden lg:flex flex-col shrink-0 border-r border-[#e0ede0] sticky top-0 h-screen overflow-y-auto"
       style={{ width: 370, background: 'linear-gradient(180deg, #f9fdf9 0%, #fff 100%)' }}
     >
-      {/* Logo */}
+      {/* Logotipo */}
       <div className="flex items-center gap-3 px-6 pt-7 pb-5">
         <div
           className="flex items-center justify-center rounded-full shadow"
@@ -34,7 +34,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Nav links */}
+      {/* Links de navegação */}
       <nav className="flex flex-col gap-2 px-3 pt-4 flex-1">
         {navLinks.map(({ to, label, icon }) => (
           <NavLink
@@ -55,7 +55,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Profile widget */}
+      {/* Widget do perfil */}
       <div
         className="mx-4 mb-5 rounded-2xl p-4"
         style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)' }}

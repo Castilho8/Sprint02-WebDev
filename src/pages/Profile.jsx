@@ -44,7 +44,7 @@ function TabPersonal({ editing, setEditing }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {/* Left */}
+      {/* Esquerda */}
       <div className="lg:col-span-2">
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -112,9 +112,9 @@ function TabPersonal({ editing, setEditing }) {
         </div>
       </div>
 
-      {/* Right */}
+      {/* Direita */}
       <div className="flex flex-col gap-4">
-        {/* Level progress */}
+        {/* Progresso de nível */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="font-bold text-[#1b1b1b] mb-1">Nível 12 · Guerreiro</div>
           <div className="flex justify-between text-xs text-gray-400 mb-1">
@@ -133,7 +133,7 @@ function TabPersonal({ editing, setEditing }) {
           </div>
         </div>
 
-        {/* Integrations */}
+        {/* Integrações */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="font-bold text-[#1b1b1b] mb-3">Integrações</div>
           <div className="flex items-center justify-between mb-3">
@@ -155,7 +155,7 @@ function TabPersonal({ editing, setEditing }) {
         </div>
       </div>
 
-      {/* Toast */}
+      {/* Notificação */}
       {toast && (
         <div
           className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold text-white"
@@ -338,7 +338,7 @@ export default function Profile() {
     <div>
       <TopBar title="Perfil" />
 
-      {/* Profile hero */}
+      {/* Cabeçalho do perfil */}
       <div
         className="rounded-2xl p-5 mb-5 border border-[#e0ede0]"
         style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)' }}
@@ -384,7 +384,7 @@ export default function Profile() {
           </button>
         </div>
 
-        {/* Quick stats */}
+        {/* Estatísticas rápidas */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { value: '840', label: 'Pontos atuais', color: 'text-[#2e7d32]', bg: '#e8f5e9' },
@@ -400,7 +400,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Abas */}
       <div className="flex flex-wrap gap-2 mb-5">
         {TABS.map(t => (
           <button
@@ -422,7 +422,7 @@ export default function Profile() {
       {activeTab === 'conquistas' && <TabAchievements />}
       {activeTab === 'privacidade' && <TabPrivacy onDeleteRequest={() => setDeleteModal(true)} />}
 
-      {/* Delete modal */}
+      {/* Modal de exclusão */}
       <Modal
         open={deleteModal}
         onClose={() => { setDeleteModal(false); setDeleteInput(''); setDeleteError(false) }}
