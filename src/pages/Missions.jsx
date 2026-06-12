@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import TopBar from '../components/ui/TopBar'
 import ProgressRing from '../components/ui/ProgressRing'
+import { useTheme } from '../context/ThemeContext'
 
 const MISSIONS = [
   {
@@ -151,6 +152,7 @@ function MissionCard({ mission, onToggle }) {
 export default function Missions() {
   const [activeTab, setActiveTab] = useState('all')
   const [missions, setMissions] = useState(MISSIONS)
+  const { dark } = useTheme()
 
   const toggleMission = (id) => {
     setMissions(ms => ms.map(m => m.id === id ? { ...m, completed: !m.completed } : m))
@@ -177,7 +179,7 @@ export default function Missions() {
       {/* Progresso principal */}
       <div
         className="rounded-2xl p-5 mb-5"
-        style={{ background: '#f4f6f4' }}
+        style={{ background: dark ? '#162032' : '#f4f6f4' }}
       >
         <h2 className="text-2xl font-extrabold text-[#1b1b1b] mb-1">
           {done} de {total} missões concluídas

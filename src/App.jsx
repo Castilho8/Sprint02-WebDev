@@ -5,9 +5,11 @@ import Missions from './pages/Missions'
 import Profile from './pages/Profile'
 import Store from './pages/Store'
 import { AvatarProvider } from './context/AvatarContext'
+import { ThemeProvider } from './context/ThemeContext'
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AvatarProvider>
       <BrowserRouter>
         <Layout>
@@ -20,5 +22,6 @@ export default function App() {
         </Layout>
       </BrowserRouter>
     </AvatarProvider>
+    </ThemeProvider>
   )
 }

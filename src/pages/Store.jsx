@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
+import { useTheme } from '../context/ThemeContext'
 
 const CATEGORIES = [
   { id: 'all', label: 'Todos' },
@@ -95,6 +96,7 @@ export default function Store() {
   const [confirmModal, setConfirmModal] = useState(false)
   const [successModal, setSuccessModal] = useState(false)
   const [pending, setPending] = useState(null)
+  const { dark } = useTheme()
 
   const openConfirm = (reward) => {
     setPending(reward)
@@ -141,7 +143,7 @@ export default function Store() {
         {/* Destaque */}
         <div
           className="rounded-2xl p-5 border border-[#c8e6c9]"
-          style={{ background: 'linear-gradient(135deg, #f1f8e9, #e8f5e9)' }}
+          style={{ background: dark ? 'linear-gradient(135deg, #0d2211, #1a2e1a)' : 'linear-gradient(135deg, #f1f8e9, #e8f5e9)' }}
         >
           <div className="flex items-center gap-1 mb-2">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-400 text-white">
