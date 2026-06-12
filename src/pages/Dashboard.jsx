@@ -1,5 +1,33 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TopBar from '../components/ui/TopBar'
+import Modal from '../components/ui/Modal'
+
+const MONITORING_QUESTIONS = [
+  { id: 'bemestar', label: 'Como está seu nível de bem-estar geral?', shortLabel: 'Bem-estar', inverted: false, lowLabel: 'Muito baixo', highLabel: 'Muito alto' },
+  { id: 'estresse', label: 'Como você avalia seu nível de estresse?', shortLabel: 'Estresse', inverted: true, lowLabel: 'Sem estresse', highLabel: 'Muito estressado' },
+  { id: 'sono', label: 'Como foi a qualidade do seu sono?', shortLabel: 'Sono', inverted: false, lowLabel: 'Muito ruim', highLabel: 'Excelente' },
+  { id: 'motivacao', label: 'Como está sua motivação e disposição?', shortLabel: 'Motivação', inverted: false, lowLabel: 'Nenhuma', highLabel: 'Muito alta' },
+  { id: 'habitos', label: 'Como estão seus hábitos saudáveis?', shortLabel: 'Hábitos', inverted: false, lowLabel: 'Péssimos', highLabel: 'Excelentes' },
+  { id: 'ansiedade', label: 'Com que intensidade você sente ansiedade ou sobrecarga?', shortLabel: 'Ansiedade', inverted: true, lowLabel: 'Nenhuma', highLabel: 'Muito intensa' },
+  { id: 'satisfacao', label: 'Como está sua satisfação com a rotina de trabalho?', shortLabel: 'Satisfação', inverted: false, lowLabel: 'Muito insatisfeito', highLabel: 'Muito satisfeito' },
+]
+
+function calcWellnessScore(answers) {
+  const scores = MONITORING_QUESTIONS.map(q => {
+    const v = answers[q.id] || 3
+    return q.inverted ? (6 - v) : v
+  })
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+  return Math.round(((avg - 1) / 4) * 100)
+}
+
+function getWellnessRisk(score) {
+  if (score >= 81) return { label: 'Excelente', color: '#2e7d32', bg: '#e8f5e9', icon: 'bi-emoji-laughing-fill', msg: 'Parabéns! Seus indicadores estão ótimos. Continue assim!' }
+  if (score >= 61) return { label: 'Bom', color: '#388e3c', bg: '#f1f8e9', icon: 'bi-emoji-smile-fill', msg: 'Seus indicadores estão bons. Fique atento a pequenas melhorias na rotina.' }
+  if (score >= 41) return { label: 'Atenção', color: '#f57c00', bg: '#fff3e0', icon: 'bi-exclamation-triangle-fill', msg: 'Atenção: alguns indicadores precisam de cuidado. Considere ajustes na sua rotina.' }
+  return { label: 'Risco', color: '#c62828', bg: '#ffebee', icon: 'bi-exclamation-circle-fill', msg: 'Identificamos possíveis riscos à sua saúde. O RH será notificado para oferecer suporte adequado.' }
+}
 
 function HydrationBar({ filled }) {
   return (
@@ -16,11 +44,46 @@ function HydrationBar({ filled }) {
 }
 
 export default function Dashboard() {
+  const [phase, setPhase] = useState('idle')
+  const [currentQ, setCurrentQ] = useState(0)
+  const [answers, setAnswers] = useState({})
+  const [wellnessScore, setWellnessScore] = useState(null)
+  const [lastEvalDate, setLastEvalDate] = useState(() => {
+    const stored = localStorage.getItem('carefit_last_evaluation')
+    return stored ? new Date(stored) : null
+  })
+
+  const nextEvalDate = lastEvalDate
+    ? new Date(lastEvalDate.getTime() + 15 * 24 * 60 * 60 * 1000)
+    : null
+  const isAvailable = !nextEvalDate || new Date() >= nextEvalDate
+  const daysRemaining = nextEvalDate && !isAvailable
+    ? Math.ceil((nextEvalDate - new Date()) / (1000 * 60 * 60 * 24))
+    : 0
+  const formatDate = (date) => date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })
+
+  const handleAnswer = (val) => {
+    const q = MONITORING_QUESTIONS[currentQ]
+    const newAnswers = { ...answers, [q.id]: val }
+    setAnswers(newAnswers)
+    if (currentQ < MONITORING_QUESTIONS.length - 1) {
+      setTimeout(() => setCurrentQ(c => c + 1), 220)
+    } else {
+      setTimeout(() => {
+        setWellnessScore(calcWellnessScore(newAnswers))
+        setPhase('result')
+      }, 220)
+    }
+  }
+
+  const q = MONITORING_QUESTIONS[currentQ]
+  const riskInfo = wellnessScore !== null ? getWellnessRisk(wellnessScore) : null
+
   return (
     <div className="flex flex-col gap-6">
       <TopBar title="Dashboard" />
 
-      {/* Hero */}
+      {/* Cabeçalho */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         <div className="lg:col-span-3 flex flex-col gap-4">
           <div className="text-xs font-bold text-[#2e7d32] uppercase tracking-widest">Status de Hoje</div>
@@ -52,7 +115,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Vitality card */}
+        {/* Card de vitalidade */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
           <div className="flex items-start justify-between mb-1">
             <div className="text-6xl font-extrabold text-[#1b1b1b] leading-none">840</div>
@@ -71,7 +134,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Planta Física */}
         <div className="rounded-2xl overflow-hidden flex flex-col" style={{ background: '#eef2ee' }}>
@@ -131,7 +194,196 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Daily Missions */}
+      {/* Monitoramento Preventivo */}
+      {phase === 'idle' && (
+        <div
+          className="rounded-2xl border p-5 shadow-sm"
+          style={{ background: 'linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)', borderColor: '#ce93d8' }}
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div
+                className="flex items-center justify-center rounded-xl shrink-0"
+                style={{ width: 48, height: 48, background: '#e1bee7' }}
+              >
+                <i className="bi bi-heart-pulse-fill text-2xl" style={{ color: '#6a1b9a' }} />
+              </div>
+              <div>
+                <div className="font-bold text-[#1b1b1b] text-base">Monitoramento Preventivo Inteligente</div>
+                <div className="text-sm text-gray-500 mt-0.5">Questionário quinzenal de saúde física e mental.</div>
+                {isAvailable ? (
+                  <div className="text-xs font-semibold mt-1" style={{ color: '#6a1b9a' }}>
+                    <i className="bi bi-calendar3 me-1" /> Próxima avaliação: disponível agora
+                  </div>
+                ) : (
+                  <div className="text-xs font-semibold mt-1 text-gray-400">
+                    <i className="bi bi-calendar3 me-1" />
+                    Próxima avaliação: {formatDate(nextEvalDate)} · {daysRemaining} {daysRemaining === 1 ? 'dia restante' : 'dias restantes'}
+                  </div>
+                )}
+              </div>
+            </div>
+            {isAvailable ? (
+              <button
+                onClick={() => setPhase('consent')}
+                className="px-5 py-2.5 rounded-full text-sm font-bold text-white shrink-0 hover:opacity-90 transition-opacity"
+                style={{ background: 'linear-gradient(135deg, #6a1b9a, #ab47bc)' }}
+              >
+                <i className="bi bi-clipboard2-pulse-fill me-1" /> Responder agora
+              </button>
+            ) : (
+              <div className="px-4 py-2.5 rounded-full text-sm font-semibold text-gray-400 border border-gray-200 bg-white shrink-0">
+                <i className="bi bi-clock me-1" /> {daysRemaining} {daysRemaining === 1 ? 'dia' : 'dias'}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Formulário passo a passo */}
+      {phase === 'form' && (
+        <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: '#ce93d8' }}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold" style={{ color: '#6a1b9a' }}>
+              Pergunta {currentQ + 1} de {MONITORING_QUESTIONS.length}
+            </span>
+            <button
+              onClick={() => setPhase('idle')}
+              className="text-gray-400 hover:text-gray-600 text-lg leading-none bg-transparent border-0"
+            >
+              <i className="bi bi-x-lg" />
+            </button>
+          </div>
+          <div className="w-full rounded-full overflow-hidden mb-5" style={{ height: 6, background: '#ede7f6' }}>
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${((currentQ + 1) / MONITORING_QUESTIONS.length) * 100}%`,
+                background: 'linear-gradient(90deg, #6a1b9a, #ab47bc)',
+              }}
+            />
+          </div>
+          <h3 className="font-bold text-[#1b1b1b] text-base mb-5">{q.label}</h3>
+          <div className="flex justify-between text-xs text-gray-400 mb-2">
+            <span>{q.lowLabel}</span>
+            <span>{q.highLabel}</span>
+          </div>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map(val => (
+              <button
+                key={val}
+                onClick={() => handleAnswer(val)}
+                className={`flex-1 py-4 rounded-xl font-extrabold text-xl transition-all hover:scale-105 ${answers[q.id] === val ? 'scale-105' : ''}`}
+                style={
+                  answers[q.id] === val
+                    ? { background: 'linear-gradient(135deg, #6a1b9a, #ab47bc)', color: 'white' }
+                    : { background: '#f3e5f5', color: '#6a1b9a' }
+                }
+              >
+                {val}
+              </button>
+            ))}
+          </div>
+          {currentQ > 0 && (
+            <button
+              onClick={() => setCurrentQ(c => c - 1)}
+              className="mt-5 flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors bg-transparent border-0"
+            >
+              <i className="bi bi-arrow-left" /> Pergunta anterior
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Resultado */}
+      {phase === 'result' && riskInfo && (
+        <div
+          className="rounded-2xl border p-6 shadow-sm"
+          style={{ background: riskInfo.bg, borderColor: riskInfo.color + '60' }}
+        >
+          <div className="text-center mb-5">
+            <i className={`bi ${riskInfo.icon} text-5xl`} style={{ color: riskInfo.color }} />
+            <div className="text-5xl font-extrabold mt-2" style={{ color: riskInfo.color }}>{wellnessScore}</div>
+            <div className="text-sm font-bold mt-1" style={{ color: riskInfo.color }}>
+              Índice de Bem-Estar · {riskInfo.label}
+            </div>
+          </div>
+          <div className="w-full rounded-full overflow-hidden mb-4" style={{ height: 10, background: 'rgba(0,0,0,0.08)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${wellnessScore}%`, background: riskInfo.color }}
+            />
+          </div>
+          <p className="text-sm text-center mb-5" style={{ color: riskInfo.color }}>{riskInfo.msg}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+            {MONITORING_QUESTIONS.map(mq => (
+              <div key={mq.id} className="bg-white rounded-xl p-3 text-center shadow-sm">
+                <div className="font-bold text-base" style={{ color: riskInfo.color }}>{answers[mq.id] || '—'}</div>
+                <div className="text-xs text-gray-400 mt-0.5 leading-tight">{mq.shortLabel}</div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center">
+            <button
+              onClick={() => {
+                const now = new Date()
+                localStorage.setItem('carefit_last_evaluation', now.toISOString())
+                setLastEvalDate(now)
+                setPhase('idle')
+                setWellnessScore(null)
+                setAnswers({})
+              }}
+              className="px-6 py-2.5 rounded-full text-sm font-bold text-white hover:opacity-90 transition-opacity"
+              style={{ background: 'linear-gradient(135deg, #6a1b9a, #ab47bc)' }}
+            >
+              <i className="bi bi-check-circle-fill me-1" /> Concluir avaliação
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de consentimento */}
+      <Modal
+        open={phase === 'consent'}
+        onClose={() => setPhase('idle')}
+        title="Termo de Consentimento para Monitoramento Preventivo"
+        footer={
+          <>
+            <button
+              onClick={() => setPhase('idle')}
+              className="px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 text-gray-500 hover:border-gray-400 transition-colors"
+            >
+              Recusar
+            </button>
+            <button
+              onClick={() => { setPhase('form'); setCurrentQ(0); setAnswers({}) }}
+              className="px-5 py-2 rounded-full text-sm font-bold text-white hover:opacity-90 transition-opacity"
+              style={{ background: 'linear-gradient(135deg, #6a1b9a, #ab47bc)' }}
+            >
+              Aceitar e Continuar
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+          Ao prosseguir, você declara que fornecerá informações verdadeiras e compreende que os dados serão utilizados exclusivamente para acompanhamento de saúde e bem-estar.
+        </p>
+        <div className="rounded-xl p-4 mb-3" style={{ background: '#f3e5f5' }}>
+          <div className="font-semibold text-sm mb-2" style={{ color: '#4a148c' }}>O questionário contém perguntas sobre:</div>
+          <ul className="text-sm space-y-1" style={{ color: '#6a1b9a' }}>
+            {['Nível de bem-estar geral', 'Nível de estresse', 'Qualidade do sono', 'Motivação e disposição', 'Hábitos saudáveis', 'Sinais de ansiedade, esgotamento ou sobrecarga', 'Satisfação com a rotina de trabalho'].map(item => (
+              <li key={item} className="flex items-center gap-2">
+                <i className="bi bi-check2 text-purple-400" /> {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-xs text-gray-400 leading-relaxed">
+          O RH será notificado <strong>apenas</strong> em caso de identificação de indicadores de risco, sem acesso às respostas completas. Em conformidade com a LGPD (Lei nº 13.709/2018).
+        </p>
+      </Modal>
+
+      {/* Missões do Dia */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-extrabold text-[#1b1b1b]">Missões do Dia</h2>
@@ -193,7 +445,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Yoga card */}
+          {/* Card de Yoga */}
           <div className="relative rounded-2xl overflow-hidden shadow-sm" style={{ minHeight: 180 }}>
             <img
               src="https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=900&auto=format&fit=crop&q=60"

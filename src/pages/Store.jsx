@@ -112,9 +112,9 @@ export default function Store() {
     <div>
       <TopBar title="Loja" />
 
-      {/* Balance + Featured */}
+      {/* Saldo + Destaque */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        {/* Balance */}
+        {/* Saldo */}
         <div
           className="rounded-2xl p-5 text-white"
           style={{ background: 'linear-gradient(135deg, #2e7d32, #43a047)' }}
@@ -138,7 +138,7 @@ export default function Store() {
           </div>
         </div>
 
-        {/* Featured */}
+        {/* Destaque */}
         <div
           className="rounded-2xl p-5 border border-[#c8e6c9]"
           style={{ background: 'linear-gradient(135deg, #f1f8e9, #e8f5e9)' }}
@@ -167,7 +167,7 @@ export default function Store() {
         </div>
       </div>
 
-      {/* Category filter */}
+      {/* Filtro de categorias */}
       <div className="flex flex-wrap gap-2 mb-5">
         {CATEGORIES.map(c => (
           <button
@@ -199,7 +199,7 @@ export default function Store() {
         )}
       </div>
 
-      {/* Confirm modal */}
+      {/* Modal de confirmação */}
       <Modal
         open={confirmModal}
         onClose={() => setConfirmModal(false)}
@@ -231,7 +231,7 @@ export default function Store() {
         )}
       </Modal>
 
-      {/* Success modal */}
+      {/* Modal de sucesso */}
       <Modal
         open={successModal}
         onClose={() => setSuccessModal(false)}

@@ -174,7 +174,7 @@ export default function Missions() {
     <div>
       <TopBar title="Missões" />
 
-      {/* Hero progress */}
+      {/* Progresso principal */}
       <div
         className="rounded-2xl p-5 mb-5"
         style={{ background: '#f4f6f4' }}
@@ -186,7 +186,7 @@ export default function Missions() {
           Complete mais {total - done} missões para garantir seu Dia Perfeito...
         </p>
 
-        {/* Week calendar */}
+        {/* Calendário semanal */}
         <div className="flex gap-2 mb-5">
           {DAYS.map((d, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
@@ -206,7 +206,7 @@ export default function Missions() {
           ))}
         </div>
 
-        {/* Progress rings */}
+        {/* Anéis de progresso */}
         <div className="flex gap-8">
           <div className="flex flex-col items-center gap-1">
             <ProgressRing percent={71} color="#2e7d32" />
@@ -226,7 +226,7 @@ export default function Missions() {
         </div>
       </div>
 
-      {/* Tab pills */}
+      {/* Abas de navegação */}
       <div className="flex flex-wrap gap-2 mb-5">
         {TABS.map(tab => (
           <button
