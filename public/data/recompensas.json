@@ -1,12 +1,12 @@
 [
   {
     "id": 1,
-    "cat": "digital",
-    "icon": "bi-phone-fill",
-    "iconBg": "#e3f2fd",
-    "iconColor": "#1e88e5",
-    "title": "Tema Exclusivo do App",
-    "desc": "Personalize o tema \"Floresta Viva\"",
+    "cat": "saude",
+    "icon": "bi-bandaid-fill",
+    "iconBg": "#fce4ec",
+    "iconColor": "#e91e63",
+    "title": "Sessão de Massagem",
+    "desc": "1 sessão de massagem relaxante na rede parceira",
     "cost": 200
   },
   {
