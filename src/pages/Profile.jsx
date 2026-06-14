@@ -3,6 +3,7 @@ import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
 import { useAvatar } from '../context/AvatarContext'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 
 const TABS = [
   { id: 'dados', label: 'Dados Pessoais' },
@@ -21,18 +22,20 @@ const ACHIEVEMENTS = [
 ]
 
 function TabPersonal({ editing, setEditing }) {
+  const { user, updateUser } = useAuth()
   const [form, setForm] = useState({
-    nome: 'Bruno Silva',
-    email: 'bruno.silva@empresa.com.br',
-    telefone: '(11) 99876-5432',
-    nascimento: '15 de março de 1990',
-    empresa: 'TechCorp Soluções Ltda.',
+    nome: user?.nome || '',
+    email: user?.email || '',
+    telefone: user?.telefone || '',
+    nascimento: user?.nascimento || '',
+    empresa: user?.empresa || '',
   })
   const [saved, setSaved] = useState({ ...form })
   const [toast, setToast] = useState(false)
 
   const save = () => {
     setSaved({ ...form })
+    updateUser(form)
     setEditing(false)
     setToast(true)
     setTimeout(() => setToast(false), 3000)
@@ -316,6 +319,7 @@ export default function Profile() {
   const [deleteError, setDeleteError] = useState(false)
   const { avatar, updateAvatar } = useAvatar()
   const { dark } = useTheme()
+  const { user } = useAuth()
   const fileInputRef = useRef(null)
 
   function handleChange(e) {
@@ -362,14 +366,14 @@ export default function Profile() {
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
           </div>
           <div className="text-center sm:text-left flex-1">
-            <div className="font-extrabold text-2xl text-[#1b1b1b]">Bruno Silva</div>
+            <div className="font-extrabold text-2xl text-[#1b1b1b]">{user?.nome || 'Usuário'}</div>
             <span
               className="inline-block mt-1 px-3 py-1 rounded-full text-sm font-bold text-white"
               style={{ background: 'linear-gradient(135deg, #2e7d32, #66bb6a)' }}
             >
               Nível 12 · Guerreiro
             </span>
-            <div className="text-xs text-gray-400 mt-2">bruno.silva@empresa.com.br · Membro desde Jan 2024</div>
+            <div className="text-xs text-gray-400 mt-2">{user?.email}{user?.memberSince ? ` · Membro desde ${user.memberSince}` : ''}</div>
             <div className="flex flex-wrap gap-2 mt-2 justify-center sm:justify-start">
               <span className="px-2 py-0.5 rounded-full text-xs font-bold border border-[#a5d6a7] bg-[#e8f5e9] text-[#2e7d32]">Físico: Intermediário</span>
               <span className="px-2 py-0.5 rounded-full text-xs font-bold border border-blue-200 bg-[#e3f2fd] text-blue-600">Mental: Iniciante</span>
