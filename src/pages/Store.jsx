@@ -3,6 +3,9 @@ import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
 import { useTheme } from '../context/ThemeContext'
 
+const INITIAL_BALANCE = 840
+const STORAGE_KEY = 'carefit_balance'
+
 const CATEGORIES = [
   { id: 'all', label: 'Todos' },
   { id: 'digital', label: 'Digital', icon: 'bi-phone-fill' },
@@ -21,37 +24,41 @@ const CAT_STYLE = {
 const REWARDS = [
   {
     id: 1, cat: 'digital', icon: 'bi-phone-fill', iconBg: '#e3f2fd', iconColor: '#1e88e5',
-    title: 'Tema Exclusivo do App', desc: 'Personalize o tema "Floresta Viva"', cost: 200, available: true,
+    title: 'Tema Exclusivo do App', desc: 'Personalize o tema "Floresta Viva"', cost: 200,
   },
   {
     id: 2, cat: 'saude', icon: 'bi-cup-hot-fill', iconBg: '#e8f5e9', iconColor: '#2e7d32',
-    title: 'Kit Chás Medicinais', desc: '6 chás medicinais para bem-estar', cost: 350, available: true,
+    title: 'Kit Chás Medicinais', desc: '6 chás medicinais para bem-estar', cost: 350,
   },
   {
     id: 3, cat: 'parceiro', icon: 'bi-activity', iconBg: '#ede7f6', iconColor: '#7e57c2',
-    title: 'Day Pass Academia', desc: 'Acesso por 1 dia à rede parceira', cost: 400, available: true,
+    title: 'Day Pass Academia', desc: 'Acesso por 1 dia à rede parceira', cost: 400,
   },
   {
     id: 4, cat: 'digital', icon: 'bi-headphones', iconBg: '#e3f2fd', iconColor: '#1e88e5',
-    title: 'Meditações Premium', desc: '30 meditações exclusivas por 2 semanas', cost: 300, available: true,
+    title: 'Meditações Premium', desc: '30 meditações exclusivas por 2 semanas', cost: 300,
   },
   {
     id: 5, cat: 'fisico', icon: 'bi-gift-fill', iconBg: '#fff3e0', iconColor: '#e65100',
-    title: 'Kit Bem-estar', desc: 'Garrafa térmica + diário de hábitos + caneta', cost: 900, available: false,
+    title: 'Kit Bem-estar', desc: 'Garrafa térmica + diário de hábitos + caneta', cost: 900,
   },
   {
     id: 6, cat: 'parceiro', icon: 'bi-fork-knife', iconBg: '#fce4ec', iconColor: '#c2185b',
-    title: 'Voucher Restaurante Saudável', desc: 'R$30 de desconto em restaurantes parceiros', cost: 1200, available: false,
+    title: 'Voucher Restaurante Saudável', desc: 'R$30 de desconto em restaurantes parceiros', cost: 1200,
   },
 ]
 
-const BALANCE = 840
+function loadBalance() {
+  const stored = localStorage.getItem(STORAGE_KEY)
+  return stored !== null ? parseInt(stored, 10) : INITIAL_BALANCE
+}
 
-function RewardCard({ reward, onRedeem }) {
+function RewardCard({ reward, balance, onRedeem }) {
+  const canAfford = balance >= reward.cost
   return (
     <div
       className={`bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm transition-all ${
-        reward.available ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : 'opacity-70'
+        canAfford ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : 'opacity-60'
       }`}
     >
       <div
@@ -67,7 +74,7 @@ function RewardCard({ reward, onRedeem }) {
           </span>
           <span
             className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
-              reward.available ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-gray-100 text-gray-400'
+              canAfford ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-gray-100 text-gray-400'
             }`}
           >
             {reward.cost} pts
@@ -76,15 +83,15 @@ function RewardCard({ reward, onRedeem }) {
         <div className="font-bold text-[#1b1b1b] mt-2">{reward.title}</div>
         <div className="text-xs text-gray-400 mt-0.5 mb-3">{reward.desc}</div>
         <button
-          onClick={() => reward.available && onRedeem(reward)}
-          disabled={!reward.available}
+          onClick={() => canAfford && onRedeem(reward)}
+          disabled={!canAfford}
           className={`w-full py-2 rounded-full text-sm font-bold transition-colors ${
-            reward.available
+            canAfford
               ? 'bg-[#2e7d32] text-white hover:bg-[#1b5e20]'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {reward.available ? 'Resgatar' : 'Saldo insuficiente'}
+          {canAfford ? 'Resgatar' : 'Saldo insuficiente'}
         </button>
       </div>
     </div>
@@ -92,6 +99,7 @@ function RewardCard({ reward, onRedeem }) {
 }
 
 export default function Store() {
+  const [balance, setBalance] = useState(loadBalance)
   const [activeCategory, setActiveCategory] = useState('all')
   const [confirmModal, setConfirmModal] = useState(false)
   const [successModal, setSuccessModal] = useState(false)
@@ -99,11 +107,16 @@ export default function Store() {
   const { dark } = useTheme()
 
   const openConfirm = (reward) => {
+    if (balance < reward.cost) return
     setPending(reward)
     setConfirmModal(true)
   }
 
   const confirmRedeem = () => {
+    if (!pending) return
+    const newBalance = balance - pending.cost
+    setBalance(newBalance)
+    localStorage.setItem(STORAGE_KEY, newBalance)
     setConfirmModal(false)
     setTimeout(() => setSuccessModal(true), 300)
   }
@@ -122,7 +135,7 @@ export default function Store() {
           style={{ background: 'linear-gradient(135deg, #2e7d32, #43a047)' }}
         >
           <div className="text-xs font-bold uppercase tracking-widest mb-1 opacity-80">Seu Saldo</div>
-          <div className="text-5xl font-extrabold mb-0.5">{BALANCE}</div>
+          <div className="text-5xl font-extrabold mb-0.5">{balance}</div>
           <div className="text-sm opacity-75 mb-4">pontos disponíveis</div>
           <div className="border-t border-white/20 pt-3 grid grid-cols-2 gap-3 mb-4">
             <div>
@@ -131,7 +144,7 @@ export default function Store() {
             </div>
             <div>
               <div className="text-xs opacity-60 uppercase tracking-wider">Resgatados</div>
-              <div className="font-bold text-lg">2.400 pts</div>
+              <div className="font-bold text-lg">{(3240 - balance).toLocaleString('pt-BR')} pts</div>
             </div>
           </div>
           <div className="bg-white/10 rounded-xl p-3 text-sm">
@@ -158,12 +171,19 @@ export default function Store() {
             Acesso ilimitado a aulas ao vivo, meditações guiadas e conteúdo exclusivo por 30 dias.
           </div>
           <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded-full text-sm font-extrabold bg-[#2e7d32] text-white">600 pts</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-extrabold ${balance >= 600 ? 'bg-[#2e7d32] text-white' : 'bg-gray-200 text-gray-400'}`}>
+              600 pts
+            </span>
             <button
-              onClick={() => openConfirm({ title: 'Plano Premium — 1 Mês', cost: 600, available: true })}
-              className="px-4 py-2 rounded-full text-sm font-bold bg-[#2e7d32] text-white hover:bg-[#1b5e20] transition-colors"
+              onClick={() => openConfirm({ id: 'premium', title: 'Plano Premium — 1 Mês', cost: 600 })}
+              disabled={balance < 600}
+              className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${
+                balance >= 600
+                  ? 'bg-[#2e7d32] text-white hover:bg-[#1b5e20]'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
             >
-              Resgatar
+              {balance >= 600 ? 'Resgatar' : 'Saldo insuficiente'}
             </button>
           </div>
         </div>
@@ -191,7 +211,7 @@ export default function Store() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
         {visible.map(r => (
-          <RewardCard key={r.id} reward={r} onRedeem={openConfirm} />
+          <RewardCard key={r.id} reward={r} balance={balance} onRedeem={openConfirm} />
         ))}
         {visible.length === 0 && (
           <div className="col-span-3 text-center py-12 text-gray-400">
@@ -225,11 +245,16 @@ export default function Store() {
         }
       >
         {pending && (
-          <p className="text-sm text-gray-500">
-            Você está prestes a resgatar <strong>{pending.title}</strong> por{' '}
-            <strong className="text-[#2e7d32]">{pending.cost} pontos</strong>.
-            Deseja confirmar?
-          </p>
+          <div className="text-sm text-gray-500">
+            <p>
+              Você está prestes a resgatar <strong>{pending.title}</strong> por{' '}
+              <strong className="text-[#2e7d32]">{pending.cost} pontos</strong>.
+            </p>
+            <p className="mt-2 text-xs text-gray-400">
+              Saldo atual: <strong>{balance} pts</strong> → após resgate:{' '}
+              <strong className="text-[#2e7d32]">{balance - pending.cost} pts</strong>
+            </p>
+          </div>
         )}
       </Modal>
 
@@ -246,8 +271,11 @@ export default function Store() {
           >
             <i className="bi bi-check-circle-fill text-4xl text-[#2e7d32]" />
           </div>
-          <p className="text-sm text-gray-500 mb-4">
-            <strong>{pending?.title}</strong> foi resgatado com sucesso! Confira seu e-mail para mais detalhes.
+          <p className="text-sm text-gray-500 mb-2">
+            <strong>{pending?.title}</strong> foi resgatado com sucesso!
+          </p>
+          <p className="text-xs text-gray-400 mb-4">
+            Saldo restante: <strong className="text-[#2e7d32]">{balance} pts</strong>
           </p>
           <button
             onClick={() => setSuccessModal(false)}
