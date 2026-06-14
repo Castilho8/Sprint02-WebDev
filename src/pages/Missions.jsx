@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import TopBar from '../components/ui/TopBar'
 import ProgressRing from '../components/ui/ProgressRing'
+import Modal from '../components/ui/Modal'
 import { useTheme } from '../context/ThemeContext'
 
 const TABS = [
@@ -101,16 +102,28 @@ export default function Missions() {
   const [activeTab, setActiveTab] = useState('all')
   const [missions, setMissions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [allDone, setAllDone] = useState(false)
   const { dark } = useTheme()
 
   useEffect(() => {
     fetch('/data/missoes.json')
       .then(r => r.json())
-      .then(data => { setMissions(data); setLoading(false) })
+      .then(data => {
+        const saved = JSON.parse(localStorage.getItem('carefit_missions_state') || '{}')
+        const merged = data.map(m => ({ ...m, completed: m.id in saved ? saved[m.id] : m.completed }))
+        setMissions(merged)
+        setLoading(false)
+      })
   }, [])
 
   const toggleMission = (id) => {
-    setMissions(ms => ms.map(m => m.id === id ? { ...m, completed: !m.completed } : m))
+    setMissions(ms => {
+      const updated = ms.map(m => m.id === id ? { ...m, completed: !m.completed } : m)
+      const state = Object.fromEntries(updated.map(m => [m.id, m.completed]))
+      localStorage.setItem('carefit_missions_state', JSON.stringify(state))
+      if (updated.every(m => m.completed)) setAllDone(true)
+      return updated
+    })
   }
 
   const visible = missions.filter(m => {
@@ -150,7 +163,9 @@ export default function Missions() {
           {done} de {total} missões concluídas
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Complete mais {total - done} missões para garantir seu Dia Perfeito...
+          {total - done === 0
+            ? 'Você completou todas as missões de hoje. Dia Perfeito!'
+            : `Complete mais ${total - done} missão${total - done > 1 ? 'ões' : ''} para garantir seu Dia Perfeito...`}
         </p>
 
         {/* Calendário semanal */}
@@ -243,6 +258,38 @@ export default function Missions() {
           <p>Nenhuma missão nesta categoria ainda.</p>
         </div>
       )}
+
+      <Modal open={allDone} onClose={() => setAllDone(false)} title="Dia Perfeito! 🏆">
+        <div className="text-center py-2">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ background: '#e8f5e9' }}
+          >
+            <i className="bi bi-trophy-fill text-5xl text-[#2e7d32]" />
+          </div>
+          <h3 className="font-extrabold text-xl text-[#1b1b1b] mb-1">Parabéns!</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Você completou todas as missões do dia e conquistou seu <strong className="text-[#2e7d32]">Dia Perfeito</strong>.
+          </p>
+          <div
+            className="rounded-xl px-5 py-3 mb-5 inline-flex items-center gap-2"
+            style={{ background: '#e8f5e9' }}
+          >
+            <i className="bi bi-lightning-fill text-[#2e7d32] text-lg" />
+            <span className="font-extrabold text-[#2e7d32] text-lg">
+              +{missions.reduce((sum, m) => sum + m.xp, 0)} XP ganhos hoje
+            </span>
+          </div>
+          <br />
+          <button
+            onClick={() => setAllDone(false)}
+            className="px-8 py-2.5 rounded-full text-sm font-bold text-white"
+            style={{ background: 'linear-gradient(135deg, #2e7d32, #66bb6a)' }}
+          >
+            Continuar
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

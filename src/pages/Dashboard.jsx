@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
@@ -78,6 +78,22 @@ export default function Dashboard() {
     }
   }
 
+  const [missionsCompleted, setMissionsCompleted] = useState({})
+
+  useEffect(() => {
+    fetch('/data/missoes.json')
+      .then(r => r.json())
+      .then(data => {
+        const saved = JSON.parse(localStorage.getItem('carefit_missions_state') || '{}')
+        const result = {}
+        data.forEach(m => { result[m.id] = m.id in saved ? saved[m.id] : m.completed })
+        setMissionsCompleted(result)
+      })
+  }, [])
+
+  const totalMissions = Object.keys(missionsCompleted).length
+  const doneMissions = Object.values(missionsCompleted).filter(Boolean).length
+
   const { dark } = useTheme()
   const { user } = useAuth()
   const firstName = user?.nome?.split(' ')[0] || ''
@@ -105,10 +121,10 @@ export default function Dashboard() {
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#e8f5e9] text-[#2e7d32]">
-              <i className="bi bi-check-circle-fill" /> 3 missões concluídas
+              <i className="bi bi-check-circle-fill" /> {doneMissions} missões concluídas
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#fff9c4] text-[#f57f17]">
-              <i className="bi bi-lightning-fill" /> 4 missões restantes
+              <i className="bi bi-lightning-fill" /> {totalMissions - doneMissions} missões restantes
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#fff3e0] text-[#e65100]">
               <i className="bi bi-fire" /> 12 dias de streak
@@ -402,57 +418,63 @@ export default function Dashboard() {
         <div className="grid grid-cols-3 gap-4">
 
           {/* Caminhada */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm col-span-2 flex flex-col justify-between" style={{ minHeight: 180 }}>
+          <div className={`rounded-2xl p-6 border shadow-sm col-span-2 flex flex-col justify-between transition-colors ${missionsCompleted[1] ? 'bg-[#e8f5e9] border-[#a5d6a7]' : 'bg-white border-gray-100'}`} style={{ minHeight: 180 }}>
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: '#f0faf0' }}>
-                <i className="bi bi-person-walking text-[#2e7d32] text-2xl" />
+              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: missionsCompleted[1] ? '#c8e6c9' : '#f0faf0' }}>
+                <i className={`bi ${missionsCompleted[1] ? 'bi-check-lg' : 'bi-person-walking'} text-[#2e7d32] text-2xl`} />
               </div>
               <div className="flex-1">
                 <div className="font-bold text-[#1b1b1b] text-base">Caminhada Revigorante</div>
-                <div className="text-sm text-gray-400 mt-0.5">Faltam apenas 1.568 passos para a meta.</div>
+                <div className="text-sm text-gray-400 mt-0.5">
+                  {missionsCompleted[1] ? 'Meta concluída! Parabéns.' : 'Faltam apenas 1.568 passos para a meta.'}
+                </div>
               </div>
-              <div className="text-base font-extrabold text-[#2e7d32]">80%</div>
+              {missionsCompleted[1]
+                ? <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#2e7d32] text-white">Concluída</span>
+                : <div className="text-base font-extrabold text-[#2e7d32]">80%</div>
+              }
             </div>
             <div className="flex items-center gap-3 mt-4">
               <div className="flex-1">
                 <div className="w-full rounded-full overflow-hidden" style={{ height: 7, background: '#e0ede0' }}>
-                  <div className="h-full rounded-full" style={{ width: '80%', background: '#43a047' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: missionsCompleted[1] ? '100%' : '80%', background: '#43a047' }} />
                 </div>
               </div>
-              <button className="flex items-center justify-center rounded-full border border-gray-200 hover:bg-[#e8f5e9] transition-colors shrink-0" style={{ width: 38, height: 38 }}>
-                <i className="bi bi-arrow-right text-[#2e7d32]" />
-              </button>
+              <div className={`flex items-center justify-center rounded-full shrink-0 ${missionsCompleted[1] ? 'bg-[#2e7d32]' : 'border border-gray-200 hover:bg-[#e8f5e9]'}`} style={{ width: 38, height: 38 }}>
+                <i className={`bi ${missionsCompleted[1] ? 'bi-check-lg text-white' : 'bi-arrow-right text-[#2e7d32]'}`} />
+              </div>
             </div>
           </div>
 
           {/* Hidratação */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className={`rounded-2xl p-6 border shadow-sm transition-colors ${missionsCompleted[2] ? 'bg-[#e3f2fd] border-blue-200' : 'bg-white border-gray-100'}`}>
             <div className="flex items-center gap-3 mb-1">
-              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: '#e3f2fd' }}>
-                <i className="bi bi-droplet-fill text-blue-500 text-2xl" />
+              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: missionsCompleted[2] ? '#bbdefb' : '#e3f2fd' }}>
+                <i className={`bi ${missionsCompleted[2] ? 'bi-check-lg' : 'bi-droplet-fill'} text-blue-500 text-2xl`} />
               </div>
               <div>
                 <div className="font-bold text-[#1b1b1b] text-base">Hidratação</div>
-                <div className="text-sm text-gray-400 mt-0.5">6 de 8 copos</div>
+                <div className="text-sm text-gray-400 mt-0.5">{missionsCompleted[2] ? 'Meta atingida!' : '6 de 8 copos'}</div>
               </div>
             </div>
-            <HydrationBar filled={6} />
+            <HydrationBar filled={missionsCompleted[2] ? 8 : 6} />
           </div>
 
           {/* Respiro Consciente */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm col-span-2 flex flex-col justify-between" style={{ minHeight: 180 }}>
+          <div className={`rounded-2xl p-6 border shadow-sm col-span-2 flex flex-col justify-between transition-colors ${missionsCompleted[6] ? 'bg-[#fff3e0] border-orange-200' : 'bg-white border-gray-100'}`} style={{ minHeight: 180 }}>
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: '#fff3e0' }}>
-                <i className="bi bi-person text-orange-500 text-2xl" />
+              <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 50, height: 50, background: missionsCompleted[6] ? '#ffe0b2' : '#fff3e0' }}>
+                <i className={`bi ${missionsCompleted[6] ? 'bi-check-lg text-orange-500' : 'bi-person text-orange-500'} text-2xl`} />
               </div>
               <div>
                 <div className="font-bold text-[#1b1b1b] text-base">Respiro Consciente</div>
-                <div className="text-sm text-gray-400 mt-0.5">Sessão de 5 min</div>
+                <div className="text-sm text-gray-400 mt-0.5">{missionsCompleted[6] ? 'Sessão concluída!' : 'Sessão de 5 min'}</div>
               </div>
             </div>
-            <button className="w-full py-3 rounded-full text-sm font-bold border border-gray-200 text-[#1b1b1b] hover:bg-gray-50 transition-colors mt-4">
-              Iniciar Agora
-            </button>
+            {missionsCompleted[6]
+              ? <div className="w-full py-3 rounded-full text-sm font-bold text-center text-orange-600 bg-orange-100 mt-4">Concluída ✓</div>
+              : <button className="w-full py-3 rounded-full text-sm font-bold border border-gray-200 text-[#1b1b1b] hover:bg-gray-50 transition-colors mt-4">Iniciar Agora</button>
+            }
           </div>
 
           {/* Card de Yoga */}
