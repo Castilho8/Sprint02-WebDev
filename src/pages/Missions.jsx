@@ -1,59 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import TopBar from '../components/ui/TopBar'
 import ProgressRing from '../components/ui/ProgressRing'
 import { useTheme } from '../context/ThemeContext'
-
-const MISSIONS = [
-  {
-    id: 1, category: 'fisica',
-    icon: 'bi-person-walking', iconBg: '#e8f5e9', iconColor: '#2e7d32',
-    title: 'Caminhada Revigorante', xp: 80,
-    progress: 84, current: '8.432', max: '10.000', unit: 'passos',
-    completed: false, live: false,
-  },
-  {
-    id: 2, category: 'fisica',
-    icon: 'bi-droplet-fill', iconBg: '#e3f2fd', iconColor: '#1e88e5',
-    title: 'Hidratação Plena', xp: 50,
-    progress: 100, current: '8', max: '8', unit: 'copos',
-    completed: true, live: false,
-  },
-  {
-    id: 3, category: 'fisica',
-    icon: 'bi-moon-stars-fill', iconBg: '#ede7f6', iconColor: '#7e57c2',
-    title: 'Sono Restaurador', xp: 60,
-    progress: 100, current: '7h 20m', max: '', unit: 'registradas',
-    completed: true, live: false,
-  },
-  {
-    id: 4, category: 'fisica',
-    icon: 'bi-person', iconBg: '#e8f5e9', iconColor: '#2e7d32',
-    title: 'Yoga Sunset Flow', xp: 100,
-    progress: null, current: '', max: '', unit: '',
-    completed: false, live: true,
-  },
-  {
-    id: 5, category: 'mental',
-    icon: 'bi-peace-fill', iconBg: '#e3f2fd', iconColor: '#1e88e5',
-    title: 'Meditação Guiada', xp: 70,
-    progress: 100, current: '15', max: '15', unit: 'minutos',
-    completed: true, live: false,
-  },
-  {
-    id: 6, category: 'mental',
-    icon: 'bi-person', iconBg: '#fff3e0', iconColor: '#e65100',
-    title: 'Respiro Consciente', xp: 40,
-    progress: null, current: '', max: '', unit: '',
-    completed: false, live: false, startable: true,
-  },
-  {
-    id: 7, category: 'mental',
-    icon: 'bi-book-fill', iconBg: '#e3f2fd', iconColor: '#1e88e5',
-    title: 'Leitura Diária', xp: 50,
-    progress: 40, current: '8', max: '20', unit: 'minutos',
-    completed: false, live: false,
-  },
-]
 
 const TABS = [
   { id: 'all', label: 'Todas', icon: '' },
@@ -151,8 +99,15 @@ function MissionCard({ mission, onToggle }) {
 
 export default function Missions() {
   const [activeTab, setActiveTab] = useState('all')
-  const [missions, setMissions] = useState(MISSIONS)
+  const [missions, setMissions] = useState([])
+  const [loading, setLoading] = useState(true)
   const { dark } = useTheme()
+
+  useEffect(() => {
+    fetch('/data/missoes.json')
+      .then(r => r.json())
+      .then(data => { setMissions(data); setLoading(false) })
+  }, [])
 
   const toggleMission = (id) => {
     setMissions(ms => ms.map(m => m.id === id ? { ...m, completed: !m.completed } : m))
@@ -171,6 +126,16 @@ export default function Missions() {
 
   const total = missions.length
   const done = missions.filter(m => m.completed).length
+
+  if (loading) return (
+    <div>
+      <TopBar title="Missões" />
+      <div className="flex items-center justify-center py-20 text-gray-400">
+        <i className="bi bi-arrow-repeat animate-spin text-2xl mr-2" />
+        Carregando missões...
+      </div>
+    </div>
+  )
 
   return (
     <div>

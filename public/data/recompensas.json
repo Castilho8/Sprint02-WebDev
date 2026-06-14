@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "cat": "digital",
+    "icon": "bi-phone-fill",
+    "iconBg": "#e3f2fd",
+    "iconColor": "#1e88e5",
+    "title": "Tema Exclusivo do App",
+    "desc": "Personalize o tema \"Floresta Viva\"",
+    "cost": 200
+  },
+  {
+    "id": 2,
+    "cat": "saude",
+    "icon": "bi-cup-hot-fill",
+    "iconBg": "#e8f5e9",
+    "iconColor": "#2e7d32",
+    "title": "Kit Chás Medicinais",
+    "desc": "6 chás medicinais para bem-estar",
+    "cost": 350
+  },
+  {
+    "id": 3,
+    "cat": "parceiro",
+    "icon": "bi-activity",
+    "iconBg": "#ede7f6",
+    "iconColor": "#7e57c2",
+    "title": "Day Pass Academia",
+    "desc": "Acesso por 1 dia à rede parceira",
+    "cost": 400
+  },
+  {
+    "id": 4,
+    "cat": "digital",
+    "icon": "bi-headphones",
+    "iconBg": "#e3f2fd",
+    "iconColor": "#1e88e5",
+    "title": "Meditações Premium",
+    "desc": "30 meditações exclusivas por 2 semanas",
+    "cost": 300
+  },
+  {
+    "id": 5,
+    "cat": "fisico",
+    "icon": "bi-gift-fill",
+    "iconBg": "#fff3e0",
+    "iconColor": "#e65100",
+    "title": "Kit Bem-estar",
+    "desc": "Garrafa térmica + diário de hábitos + caneta",
+    "cost": 900
+  },
+  {
+    "id": 6,
+    "cat": "parceiro",
+    "icon": "bi-fork-knife",
+    "iconBg": "#fce4ec",
+    "iconColor": "#c2185b",
+    "title": "Voucher Restaurante Saudável",
+    "desc": "R$30 de desconto em restaurantes parceiros",
+    "cost": 1200
+  }
+]
