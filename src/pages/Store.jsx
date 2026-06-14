@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
 import { useTheme } from '../context/ThemeContext'
@@ -99,12 +99,20 @@ function RewardCard({ reward, balance, onRedeem }) {
 }
 
 export default function Store() {
+  const [rewards, setRewards] = useState([])
+  const [loading, setLoading] = useState(true)
   const [balance, setBalance] = useState(loadBalance)
   const [activeCategory, setActiveCategory] = useState('all')
   const [confirmModal, setConfirmModal] = useState(false)
   const [successModal, setSuccessModal] = useState(false)
   const [pending, setPending] = useState(null)
   const { dark } = useTheme()
+
+  useEffect(() => {
+    fetch('/data/recompensas.json')
+      .then(r => r.json())
+      .then(data => { setRewards(data); setLoading(false) })
+  }, [])
 
   const openConfirm = (reward) => {
     if (balance < reward.cost) return
@@ -121,7 +129,17 @@ export default function Store() {
     setTimeout(() => setSuccessModal(true), 300)
   }
 
-  const visible = REWARDS.filter(r => activeCategory === 'all' || r.cat === activeCategory)
+  const visible = rewards.filter(r => activeCategory === 'all' || r.cat === activeCategory)
+
+  if (loading) return (
+    <div>
+      <TopBar title="Loja" />
+      <div className="flex items-center justify-center py-20 text-gray-400">
+        <i className="bi bi-arrow-repeat animate-spin text-2xl mr-2" />
+        Carregando recompensas...
+      </div>
+    </div>
+  )
 
   return (
     <div>
