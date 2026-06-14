@@ -172,7 +172,45 @@ function TabPersonal({ editing, setEditing }) {
   )
 }
 
+function calcImc(altura, peso) {
+  const h = parseFloat(altura)
+  const w = parseFloat(peso)
+  if (!h || !w) return null
+  const imc = w / ((h / 100) ** 2)
+  const label = imc < 18.5 ? 'Abaixo do peso' : imc < 25 ? 'Normal' : imc < 30 ? 'Sobrepeso' : 'Obesidade'
+  return `${imc.toFixed(1)} — ${label}`
+}
+
 function TabHealth() {
+  const { user, updateUser } = useAuth()
+  const [editing, setEditing] = useState(false)
+  const [toast, setToast] = useState(false)
+  const [form, setForm] = useState({
+    altura: user?.altura || '',
+    peso: user?.peso || '',
+    nivelAtividade: user?.nivelAtividade || '',
+    objetivo: user?.objetivo || '',
+    condicoes: user?.condicoes || '',
+  })
+  const [saved, setSaved] = useState({ ...form })
+
+  const imc = calcImc(saved.altura, saved.peso)
+
+  const save = () => {
+    setSaved({ ...form })
+    updateUser(form)
+    setEditing(false)
+    setToast(true)
+    setTimeout(() => setToast(false), 3000)
+  }
+
+  const cancel = () => {
+    setForm({ ...saved })
+    setEditing(false)
+  }
+
+  const inputClass = 'w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#2e7d32] focus:ring-1 focus:ring-[#2e7d32]'
+
   const tags = [
     { label: 'Caminhada', color: 'bg-[#e8f5e9] text-[#2e7d32] border-[#a5d6a7]' },
     { label: 'Hidratação', color: 'bg-[#e8f5e9] text-[#2e7d32] border-[#a5d6a7]' },
@@ -181,26 +219,93 @@ function TabHealth() {
     { label: 'Sono', color: 'bg-[#e8f5e9] text-[#2e7d32] border-[#a5d6a7]' },
     { label: 'Respiração', color: 'bg-red-50 text-red-600 border-red-200' },
   ]
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <span className="font-bold text-[#1b1b1b] text-lg">Dados de Saúde</span>
-        <div className="divide-y divide-gray-100 mt-3">
-          {[
-            ['Altura', '178 cm'],
-            ['Peso', '74 kg'],
-            ['IMC', '23.4 — Normal'],
-            ['Nível de Atividade', 'Intermediário'],
-            ['Objetivo Principal', 'Reduzir estresse e melhorar qualidade do sono'],
-            ['Condições de Saúde', 'Nenhuma registrada'],
-          ].map(([l, v]) => (
-            <div key={l} className="flex justify-between py-3">
-              <span className="text-sm text-gray-400 font-medium">{l}</span>
-              <span className="text-sm font-semibold text-[#1b1b1b] text-right max-w-[60%]">{v}</span>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-bold text-[#1b1b1b] text-lg">Dados de Saúde</span>
+          {!editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold text-[#2e7d32] hover:bg-[#e8f5e9] transition-colors"
+            >
+              <i className="bi bi-pencil-fill" /> Editar
+            </button>
+          )}
         </div>
+
+        {!editing ? (
+          <div className="divide-y divide-gray-100">
+            {[
+              ['Altura', saved.altura ? `${saved.altura} cm` : '—'],
+              ['Peso', saved.peso ? `${saved.peso} kg` : '—'],
+              ['IMC', imc || '—'],
+              ['Nível de Atividade', saved.nivelAtividade || '—'],
+              ['Objetivo Principal', saved.objetivo || '—'],
+              ['Condições de Saúde', saved.condicoes || '—'],
+            ].map(([l, v]) => (
+              <div key={l} className="flex justify-between py-3">
+                <span className="text-sm text-gray-400 font-medium">{l}</span>
+                <span className="text-sm font-semibold text-[#1b1b1b] text-right max-w-[60%]">{v}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-400 mb-1 block">Altura (cm)</label>
+                <input type="number" className={inputClass} placeholder="Ex: 178" value={form.altura}
+                  onChange={e => setForm(f => ({ ...f, altura: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-400 mb-1 block">Peso (kg)</label>
+                <input type="number" className={inputClass} placeholder="Ex: 74" value={form.peso}
+                  onChange={e => setForm(f => ({ ...f, peso: e.target.value }))} />
+              </div>
+            </div>
+            {form.altura && form.peso && (
+              <p className="text-xs text-gray-400">
+                IMC calculado: <strong className="text-[#2e7d32]">{calcImc(form.altura, form.peso)}</strong>
+              </p>
+            )}
+            <div>
+              <label className="text-xs font-semibold text-gray-400 mb-1 block">Nível de Atividade</label>
+              <select className={inputClass} value={form.nivelAtividade}
+                onChange={e => setForm(f => ({ ...f, nivelAtividade: e.target.value }))}>
+                <option value="">Selecione...</option>
+                <option>Sedentário</option>
+                <option>Iniciante</option>
+                <option>Intermediário</option>
+                <option>Avançado</option>
+                <option>Atleta</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 mb-1 block">Objetivo Principal</label>
+              <input className={inputClass} placeholder="Ex: Reduzir estresse..." value={form.objetivo}
+                onChange={e => setForm(f => ({ ...f, objetivo: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 mb-1 block">Condições de Saúde</label>
+              <input className={inputClass} placeholder="Ex: Hipertensão, Diabetes..." value={form.condicoes}
+                onChange={e => setForm(f => ({ ...f, condicoes: e.target.value }))} />
+            </div>
+            <div className="flex gap-2 mt-1">
+              <button onClick={save} className="px-5 py-2 rounded-full text-sm font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #2e7d32, #66bb6a)' }}>
+                Salvar alterações
+              </button>
+              <button onClick={cancel}
+                className="px-5 py-2 rounded-full text-sm font-bold border border-gray-200 text-gray-500 hover:border-gray-400 transition-colors">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
         <span className="font-bold text-[#1b1b1b]">Preferências de Missões</span>
         <div className="flex flex-wrap gap-2 mt-3">
@@ -214,6 +319,13 @@ function TabHealth() {
           Editar preferências
         </button>
       </div>
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold text-white"
+          style={{ background: '#2e7d32' }}>
+          <i className="bi bi-check-circle-fill" /> Dados de saúde salvos!
+        </div>
+      )}
     </div>
   )
 }
@@ -319,7 +431,7 @@ export default function Profile() {
   const [deleteError, setDeleteError] = useState(false)
   const { avatar, updateAvatar } = useAvatar()
   const { dark } = useTheme()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const fileInputRef = useRef(null)
 
   function handleChange(e) {
@@ -332,9 +444,8 @@ export default function Profile() {
 
   const confirmDelete = () => {
     if (deleteInput.trim().toUpperCase() === 'CONFIRMAR') {
-      setDeleteModal(false)
-      setDeleteInput('')
-      alert('Conta excluída (simulação).')
+      localStorage.clear()
+      logout()
     } else {
       setDeleteError(true)
     }
