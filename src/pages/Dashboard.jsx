@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import TopBar from '../components/ui/TopBar'
 import Modal from '../components/ui/Modal'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 
 const MONITORING_QUESTIONS = [
   { id: 'bemestar', label: 'Como está seu nível de bem-estar geral?', shortLabel: 'Bem-estar', inverted: false, lowLabel: 'Muito baixo', highLabel: 'Muito alto' },
@@ -78,6 +79,8 @@ export default function Dashboard() {
   }
 
   const { dark } = useTheme()
+  const { user } = useAuth()
+  const firstName = user?.nome?.split(' ')[0] || ''
   const q = MONITORING_QUESTIONS[currentQ]
   const riskInfo = wellnessScore !== null ? getWellnessRisk(wellnessScore) : null
 
@@ -89,6 +92,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         <div className="lg:col-span-3 flex flex-col gap-4">
           <div className="text-xs font-bold text-[#2e7d32] uppercase tracking-widest">Status de Hoje</div>
+          {firstName && (
+            <div className="text-sm font-semibold text-gray-500 dark:text-slate-400 -mt-1">
+              Bom dia, {firstName}!
+            </div>
+          )}
           <h2 className="text-5xl font-extrabold text-[#1b1b1b] leading-tight">
             Rumo ao <span className="text-[#2e7d32]">Dia Perfeito.</span>
           </h2>

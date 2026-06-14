@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAvatar } from '../../context/AvatarContext'
+import { useAuth } from '../../context/AuthContext'
 
 const navLinks = [
   { to: '/', label: 'Home', icon: 'bi-house-fill' },
@@ -10,6 +11,7 @@ const navLinks = [
 
 export default function Sidebar() {
   const { avatar } = useAvatar()
+  const { user, logout } = useAuth()
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 sticky top-0 h-screen">
       {/* Logotipo */}
@@ -57,7 +59,7 @@ export default function Sidebar() {
             style={{ width: 32, height: 32, border: '2px solid #66bb6a' }}
           />
           <div>
-            <div className="text-sm font-bold text-[#1b1b1b] dark:text-slate-100">Bruno Silva</div>
+            <div className="text-sm font-bold text-[#1b1b1b] dark:text-slate-100">{user?.nome || 'Usuário'}</div>
             <div className="text-xs text-gray-400 dark:text-slate-500">Nível 12 · Guerreiro</div>
           </div>
         </div>
@@ -67,6 +69,12 @@ export default function Sidebar() {
         <div className="w-full rounded-full overflow-hidden" style={{ height: 10, background: '#334155' }}>
           <div className="h-full rounded-full" style={{ width: '74%', background: 'linear-gradient(90deg, #2e7d32, #a5d6a7)' }} />
         </div>
+        <button
+          onClick={logout}
+          className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-semibold text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+        >
+          <i className="bi bi-box-arrow-right" /> Sair
+        </button>
       </div>
     </aside>
   )
